@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Search, CheckCircle2, XCircle, Award, Calendar, User, CreditCard, Shield, FileText, QrCode, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Search, CheckCircle2, XCircle, Award, Calendar, User, CreditCard, FileText, QrCode } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { StudentCertificate } from "@shared/schema";
 
@@ -32,6 +32,12 @@ interface ExtendedStudentCertificate {
   studentName: string;
   passportNumber: string;
   dateOfBirth: string;
+  gender: 'M' | 'F';
+  countryOfOrigin: string;
+  countryOfNationality: string;
+  firstLanguage: string;
+  testReportNumber: string;
+  profileImage?: string;
   issuingInstitute: string;
   digitalSignature: string;
   certificateId: string;
@@ -45,6 +51,12 @@ const hardcodedStudents: ExtendedStudentCertificate[] = [
     studentName: "Fateh Haider",
     passportNumber: "BN6974682",
     dateOfBirth: "23 Jul 1983",
+    gender: "M",
+    countryOfOrigin: "PAKISTAN",
+    countryOfNationality: "PAKISTAN",
+    firstLanguage: "URDU",
+    testReportNumber: "ELIDE0089886",
+    profileImage: "https://res.cloudinary.com/dl17n8mof/image/upload/v1761077185/fateh_uxfnfv.jpg",
     issuingInstitute: "European Language Institute",
     digitalSignature: "Albrecht",
     certificateId: "STU20240022",
@@ -52,7 +64,7 @@ const hardcodedStudents: ExtendedStudentCertificate[] = [
       {
         language: "Deutsch",
         level: "A1",
-        certificateIssueDate: "2025-09-15",
+        certificateIssueDate: "2025-10-21",
         certificateValidUntil: "2026-10-01",
         result: "Pass",
         ieltsScores: {
@@ -69,6 +81,12 @@ const hardcodedStudents: ExtendedStudentCertificate[] = [
     studentName: "Sajjad Ahmed",
     passportNumber: "XA1159077",
     dateOfBirth: "01 Mar 1978",
+    gender: "M",
+    countryOfOrigin: "PAKISTAN",
+    countryOfNationality: "PAKISTAN",
+    firstLanguage: "URDU",
+    testReportNumber: "ELIDE0012347",
+    profileImage: "https://res.cloudinary.com/dl17n8mof/image/upload/v1761077185/Sajjad_lz48zq.jpg",
     issuingInstitute: "European Language Institute",
     digitalSignature: "Albrecht",
     certificateId: "STU20240023",
@@ -76,7 +94,7 @@ const hardcodedStudents: ExtendedStudentCertificate[] = [
       {
         language: "Deutsch",
         level: "A1",
-        certificateIssueDate: "2025-08-20",
+        certificateIssueDate: "2025-10-21",
         certificateValidUntil: "2026-09-15",
         result: "Pass",
         ieltsScores: {
@@ -84,6 +102,36 @@ const hardcodedStudents: ExtendedStudentCertificate[] = [
           reading: "8.0",
           writing: "8.5",
           speaking: "8.0",
+        },
+      },
+    ],
+  },
+  {
+    id: "AV320T262",
+    studentName: "Anna Elias",
+    passportNumber: "AV320T262",
+    dateOfBirth: "28 Jun 1995",
+    gender: "F",
+    countryOfOrigin: "FRANCE",
+    countryOfNationality: "FRANCE",
+    firstLanguage: "FRENCH",
+    testReportNumber: "ELIFR0012345",
+    profileImage: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE1MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9Ijc1IiB5PSI5MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOUI5QkE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iPkFubmE8L3RleHQ+Cjx0ZXh0IHg9Ijc1IiB5PSIxMDUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMCIgZmlsbD0iIzlCOUJBNCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RWxpYXM8L3RleHQ+Cjwvc3ZnPgo=",
+    issuingInstitute: "European Language Institute",
+    digitalSignature: "Albrecht",
+    certificateId: "ELIFR00189235",
+    courses: [
+      {
+        language: "French",
+        level: "C1",
+        certificateIssueDate: "2025-10-21",
+        certificateValidUntil: "2026-10-21",
+        result: "Pass",
+        ieltsScores: {
+          listening: "7.5",
+          reading: "8.0",
+          writing: "7.0",
+          speaking: "7.5",
         },
       },
     ],
@@ -101,10 +149,9 @@ export default function Verify() {
     enabled: searchTriggered && idNumber.length > 0 && !localStudent,
   });
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) =>
     e.preventDefault();
     if (idNumber.trim()) {
-      // Check for hardcoded data first - support both passport number and certificate ID
       const foundStudent = hardcodedStudents.find(student =>
         student.passportNumber === idNumber || student.certificateId === idNumber
       );
@@ -131,15 +178,49 @@ export default function Verify() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-primary-foreground py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Award className="w-16 h-16 mx-auto mb-6" />
+      <section className="bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-primary-foreground py-16 sm:py-20 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary-foreground/5 rounded-full blur-3xl"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+          <div className="inline-flex items-center gap-2 bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-full px-4 py-2 mb-6">
+            <Shield className="w-4 h-4 text-gold" />
+            <span className="text-sm font-medium text-gold-foreground">Official Verification</span>
+          </div>
+
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <Award className="w-20 h-20 text-gold animate-float" />
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-gold rounded-full flex items-center justify-center">
+                <Sparkles className="w-3 h-3 text-gold-foreground" />
+              </div>
+            </div>
+          </div>
+
           <h1 className="font-bold text-4xl sm:text-5xl md:text-6xl mb-6">
             Verify Student Certificate
           </h1>
-          <p className="text-lg sm:text-xl text-primary-foreground/90 max-w-3xl mx-auto">
-            Enter a student ID card number to verify their course completion and certificate details
+          <p className="text-lg sm:text-xl text-primary-foreground/90 max-w-3xl mx-auto mb-8">
+            Instantly verify the authenticity of European Language Institute certificates with our secure verification system
           </p>
+
+          {/* Trust indicators */}
+          <div className="flex flex-wrap justify-center gap-8 text-primary-foreground/80">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-gold" />
+              <span className="text-sm">Secure Verification</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-gold" />
+              <span className="text-sm">Instant Results</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-gold" />
+              <span className="text-sm">Official Records</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -148,12 +229,23 @@ export default function Verify() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Search Form */}
           <Card className="border-card-border mb-8">
-            <CardHeader>
-              <CardTitle className="text-2xl">Enter Student ID</CardTitle>
-              <CardDescription>
-                Please enter the student ID card number or passport number (e.g., STU2024001 or BN6974682)
-              </CardDescription>
-            </CardHeader>
+  <CardHeader>
+    <CardTitle className="text-2xl">Enter Student ID</CardTitle>
+    <CardDescription>
+      Please enter the student ID card number (e.g., STU2024001)
+    </CardDescription>
+    {/* Search ID Image */}
+    <div className="flex justify-center mt-4">
+      <div className="relative">
+        <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center border-2 border-primary/30">
+          <Search className="w-8 h-8 text-primary" />
+        </div>
+        <div className="absolute -top-1 -right-1 w-6 h-6 bg-gold rounded-full flex items-center justify-center border-2 border-white">
+          <Sparkles className="w-3 h-3 text-gold-foreground" />
+        </div>
+      </div>
+    </div>
+  </CardHeader>
             <CardContent>
               <form onSubmit={handleSearch} className="space-y-4">
                 <div>
@@ -170,12 +262,22 @@ export default function Verify() {
                     />
                     <Button
                       type="submit"
-                      className="bg-primary text-primary-foreground hover:bg-primary"
+                      className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
                       disabled={!idNumber.trim() || isLoading}
                       data-testid="button-search"
                     >
-                      <Search className="w-4 h-4 mr-2" />
-                      {isLoading ? "Searching..." : "Search"}
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full"></div>
+                          Searching...
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Search className="w-4 h-4" />
+                          Verify Certificate
+                          <Shield className="w-4 h-4" />
+                        </div>
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -217,52 +319,37 @@ export default function Verify() {
               {!isLoading && displayStudent && (
                 <div className="space-y-6">
                   {/* Student Info */}
-                  <Card className="border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-white via-primary/5 to-primary/10 relative overflow-hidden">
-                    {/* Decorative background elements */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-primary/5 to-transparent rounded-full translate-y-12 -translate-x-12"></div>
-
-                    <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-primary/10 relative z-10">
+                  <Card className="border-card-border">
+                    <CardHeader className="bg-muted/30">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-                          <CheckCircle2 className="w-6 h-6 text-white" />
-                        </div>
-                        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                          Certificate Verified
-                        </CardTitle>
+                        <CheckCircle2 className="w-8 h-8 text-green-600" />
+                        <CardTitle className="text-2xl">Certificate Verified</CardTitle>
                       </div>
-                      <CardDescription className="text-base">
-                        This certificate has been issued by <span className="font-semibold text-primary">{displayStudent.issuingInstitute}</span>
+                      <CardDescription>
+                        This certificate has been issued by European Language Institute
                       </CardDescription>
+                      {/* Student Profile Image */}
+                      {displayStudent.profileImage && (
+                        <div className="flex justify-center mt-4">
+                          <div className="relative">
+                            <img
+                              src={displayStudent.profileImage}
+                              alt={`${displayStudent.studentName} Profile`}
+                              className="w-24 h-24 rounded-full border-4 border-primary/20 shadow-lg object-cover"
+                            />
+                            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                              <CheckCircle2 className="w-4 h-4 text-white" />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </CardHeader>
-                    <CardContent className="p-8 space-y-8 relative z-10">
-                      {/* Student Photo and Basic Info */}
-                      <div className="text-center space-y-6 relative">
-                        <div className="relative inline-block">
-                          <div className="w-36 h-36 bg-gradient-to-br from-primary via-primary/80 to-primary/60 rounded-full mx-auto flex items-center justify-center shadow-2xl ring-4 ring-primary/20 ring-offset-4 ring-offset-white" role="img" aria-label="Student photo placeholder">
-                            <User className="w-18 h-18 text-white drop-shadow-lg" aria-hidden="true" />
-                          </div>
-                          {/* Decorative ring */}
-                          <div className="absolute inset-0 rounded-full border-4 border-primary/30 animate-pulse"></div>
-                        </div>
-                        <div className="space-y-2">
-                          <h3 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent drop-shadow-sm" data-testid="text-student-name">
-                            {displayStudent.studentName}
-                          </h3>
-                          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
-                            <CreditCard className="w-4 h-4 text-primary" />
-                            <p className="text-lg text-primary font-mono font-semibold" data-testid="text-id-number">
-                              {displayStudent.passportNumber}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Student Details Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="flex items-start gap-4 p-6 bg-gradient-to-r from-primary/5 to-transparent rounded-2xl border border-primary/10 shadow-lg hover:shadow-xl transition-all duration-300">
-                          <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                            <Award className="w-7 h-7 text-white" />
+                    <CardContent className="p-6 space-y-6">
+                      {/* Student Details */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <User className="w-5 h-5 text-primary" />
                           </div>
                           <div>
                             <div className="text-sm text-primary/70 mb-2 font-semibold uppercase tracking-wide">Issuing Institute</div>
@@ -454,7 +541,7 @@ export default function Verify() {
                                                   <div className="bg-gradient-to-br from-white to-primary/5 p-6 rounded-2xl border-2 border-primary/20   text-center">
                                                     <Calendar className="w-8 h-8 text-primary mx-auto mb-3" />
                                                     <div className="text-sm text-primary/70 font-semibold uppercase tracking-wide mb-2">Completion Date</div>
-                                                    <div className="font-bold text-xl text-foreground">{new Date(course.certificateIssueDate).toLocaleDateString('en-GB')}</div>
+                                                    <div className="font-bold text-xl text-foreground">{new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('en-GB')}</div>
                                                   </div>
                                                   <div className="bg-gradient-to-br from-white to-primary/5 p-6 rounded-2xl border-2 border-primary/20   text-center">
                                                     <Award className="w-8 h-8 text-primary mx-auto mb-3" />
@@ -494,250 +581,556 @@ export default function Verify() {
                                               {/* Download Button */}
                                               <div className="mt-8 flex justify-center">
                                                 <Button
-                                                  onClick={() => {
-                                                    const printWindow = window.open('', '_blank');
-                                                    if (printWindow) {
-                                                      printWindow.document.write(`
-                                                        <!DOCTYPE html>
-                                                        <html>
+                                                    onClick={() => {
+                                                      const printWindow = window.open('', '_blank');
+                                                      if (printWindow) {
+                                                        printWindow.document.write(`
+                                                          <!DOCTYPE html>
+                                                          <html lang="en">
                                                           <head>
-                                                            <title>Certificate - ${displayStudent.studentName}</title>
-                                                            <meta charset="UTF-8">
-                                                            <style>
-                                                              body {
-                                                                font-family: 'Times New Roman', serif;
-                                                                margin: 0;
-                                                                padding: 40px;
-                                                                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-                                                                color: #1f2937;
-                                                              }
-                                                              .certificate {
-                                                                max-width: 800px;
-                                                                margin: 0 auto;
-                                                                padding: 60px;
-                                                                background: white;
-                                                               
-                                                                box-shadow: 0 20px 60px rgba(37, 99, 235, 0.3);
-                                                                position: relative;
-                                                              }
-                                                              .certificate::before {
-                                                                content: '';
-                                                                position: absolute;
-                                                                top: -10px;
-                                                                left: -10px;
-                                                                right: -10px;
-                                                                bottom: -10px;
-                                                                background: linear-gradient(45deg, #2563eb, #3b82f6, #60a5fa, #93c5fd, #2563eb);
-                                                                border-radius: 25px;
-                                                                z-index: -1;
-                                                              }
-                                                              .header {
-                                                                text-align: center;
-                                                                margin-bottom: 50px;
-                                                              }
-                                                              .institute-name {
-                                                                font-size: 42px;
-                                                                font-weight: bold;
-                                                                color: #2563eb;
-                                                                margin-bottom: 15px;
-                                                                text-shadow: 2px 2px 4px rgba(37, 99, 235, 0.2);
-                                                              }
-                                                              .certificate-title {
-                                                                font-size: 32px;
-                                                                color: #374151;
-                                                                font-weight: bold;
-                                                                margin-bottom: 30px;
-                                                              }
-                                                              .certificate-subtitle {
-                                                                font-size: 20px;
-                                                                color: #6b7280;
-                                                                margin-bottom: 40px;
-                                                                padding: 10px 20px;
-                                                                background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-                                                                border-radius: 25px;
-                                                                display: inline-block;
-                                                              }
-                                                              .content {
-                                                                margin-bottom: 50px;
-                                                                background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-                                                                padding: 40px;
-                                                                border-radius: 15px;
-                                                                border: 2px solid #e2e8f0;
-                                                              }
-                                                              .certificate-text {
-                                                                font-size: 24px;
-                                                                line-height: 1.8;
-                                                                margin-bottom: 30px;
-                                                                text-align: center;
-                                                              }
-                                                              .highlight {
-                                                                font-weight: bold;
-                                                                color: #2563eb;
-                                                                font-size: 28px;
-                                                              }
-                                                              .info-grid {
-                                                                display: grid;
-                                                                grid-template-columns: 1fr 1fr;
-                                                                gap: 30px;
-                                                                margin: 40px 0;
-                                                              }
-                                                              .info-box {
-                                                                background: white;
-                                                                padding: 25px;
-                                                                border-radius: 12px;
-                                                                border: 2px solid #e2e8f0;
-                                                                text-align: center;
-                                                                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                                                              }
-                                                              .info-label {
-                                                                font-size: 14px;
-                                                                color: #6b7280;
-                                                                margin-bottom: 10px;
-                                                                text-transform: uppercase;
-                                                                font-weight: bold;
-                                                              }
-                                                              .info-value {
-                                                                font-size: 18px;
-                                                                font-weight: bold;
-                                                                color: #1f2937;
-                                                              }
-                                                              .dates-grid {
-                                                                display: grid;
-                                                                grid-template-columns: 1fr 1fr;
-                                                                gap: 30px;
-                                                                margin: 50px 0;
-                                                              }
-                                                              .date-box {
-                                                                background: white;
-                                                                padding: 30px;
-                                                                border-radius: 15px;
-                                                                border: 2px solid #e2e8f0;
-                                                                text-align: center;
-                                                                box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-                                                              }
-                                                              .date-label {
-                                                                font-size: 16px;
-                                                                color: #6b7280;
-                                                                margin-bottom: 15px;
-                                                                text-transform: uppercase;
-                                                                font-weight: bold;
-                                                              }
-                                                              .date-value {
-                                                                font-size: 22px;
-                                                                font-weight: bold;
-                                                                color: #1f2937;
-                                                              }
-                                                              .pass-section {
-                                                                text-align: center;
-                                                                margin: 40px 0;
-                                                              }
-                                                              .pass-badge {
-                                                                display: inline-flex;
-                                                                align-items: center;
-                                                                background: linear-gradient(135deg, #16a34a, #15803d);
-                                                                color: white;
-                                                                padding: 20px 40px;
-                                                                border-radius: 50px;
-                                                                font-size: 24px;
-                                                                font-weight: bold;
-                                                                box-shadow: 0 8px 25px rgba(22, 163, 74, 0.3);
-                                                              }
-                                                              .signature-section {
-                                                                display: grid;
-                                                                grid-template-columns: 1fr 1fr;
-                                                                gap: 40px;
-                                                                margin-top: 60px;
-                                                              }
-                                                              .signature-box {
-                                                                background: white;
-                                                                padding: 30px;
-                                                                border-radius: 15px;
-                                                                border: 2px solid #e2e8f0;
-                                                                text-align: center;
-                                                                box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-                                                              }
-                                                              .signature-label {
-                                                                font-size: 16px;
-                                                                color: #6b7280;
-                                                                margin-bottom: 15px;
-                                                                text-transform: uppercase;
-                                                                font-weight: bold;
-                                                              }
-                                                              .signature-value {
-                                                                font-size: 20px;
-                                                                font-weight: bold;
-                                                                color: #1f2937;
-                                                              }
-                                                              .certificate-id {
-                                                                font-family: monospace;
-                                                                background: #f8fafc;
-                                                                padding: 15px;
-                                                                border-radius: 8px;
-                                                                border: 2px solid #e2e8f0;
-                                                                margin-top: 15px;
-                                                                font-size: 18px;
-                                                              }
-                                                            </style>
+                                                              <meta charset="UTF-8">
+                                                              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                                              <title>European Languages Institute - Test Report Form</title>
+                                                              <style>
+                                                                  @page { size: A4; margin: 0; }
+                                                                  body {
+                                                                      font-family: Arial, sans-serif;
+                                                                      font-size: 10pt;
+                                                                      margin: 0;
+                                                                      padding: 5px;
+                                                                      box-sizing: border-box;
+                                                                      background-color: white;
+                                                                      display: flex;
+                                                                      justify-content: center;
+                                                                      align-items: flex-start;
+                                                                      min-height: 100vh;
+                                                                  }
+
+                                                                  .container {
+                                                                      width: 100%;
+                                                                      max-width: 794px; /* A4 width in pixels at 96 DPI */
+                                                                      margin: 0 auto;
+                                                                      border: 2px solid #1e40af;
+                                                                      border-radius: 8px;
+                                                                      padding: 15px;
+                                                                      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                                                                      box-shadow: 0 4px 16px rgba(30, 64, 175, 0.1);
+                                                                      page-break-inside: avoid;
+                                                                  }
+
+                                                                  @page {
+                                                                      size: A4;
+                                                                      margin: 0;
+                                                                  }
+
+                                                                  @media print {
+                                                                      body {
+                                                                          padding: 0;
+                                                                          min-height: auto;
+                                                                      }
+                                                                      .container {
+                                                                          margin: 0;
+                                                                          border: 2px solid #1e40af;
+                                                                          box-shadow: none;
+                                                                      }
+                                                                  }
+
+                                                                  .header {
+                                                                      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+                                                                      color: white;
+                                                                      padding: 15px;
+                                                                      border-radius: 8px;
+                                                                      margin-bottom: 20px;
+                                                                  }
+
+                                                                  .header-left h1 {
+                                                                      color: white;
+                                                                      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                                                                      margin: 0;
+                                                                  }
+
+                                                                  .header-right .module-box {
+                                                                      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                                                                      color: white;
+                                                                      border: 2px solid #047857;
+                                                                      box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+                                                                      padding: 8px 15px;
+                                                                      border-radius: 6px;
+                                                                  }
+ 
+                                                                  /* --- Header Section --- */
+                                                                  .header {
+                                                                      display: flex;
+                                                                      justify-content: space-between;
+                                                                      align-items: center;
+                                                                      border-bottom: 2px solid #ccc;
+                                                                      padding-bottom: 10px;
+                                                                      margin-bottom: 15px;
+                                                                  }
+ 
+                                                                  .header-left h1 {
+                                                                      font-size: 24pt;
+                                                                      font-weight: bold;
+                                                                      color: #000;
+                                                                      margin: 0;
+                                                                  }
+ 
+                                                                  .header-right {
+                                                                      text-align: right;
+                                                                      font-size: 12pt;
+                                                                      font-weight: bold;
+                                                                  }
+ 
+                                                                  /* --- Box Styling --- */
+                                                                  .input-box {
+                                                                      display: inline-block;
+                                                                      border: 1px solid #000;
+                                                                      padding: 3px;
+                                                                      min-width: 100px;
+                                                                      height: 8px;
+                                                                      text-align: left;
+                                                                      margin-right: 8px;
+                                                                      background-color: #f0f0f0; /* Light grey background for input areas */
+                                                                      font-size: 9pt;
+                                                                  }
+ 
+                                                                  .label {
+                                                                      font-size: 8pt;
+                                                                      color: #555;
+                                                                      margin-bottom: 2px;
+                                                                      display: block;
+                                                                  }
+ 
+                                                                  .row {
+                                                                      display: flex;
+                                                                      align-items: flex-start;
+                                                                      margin-bottom: 10px;
+                                                                  }
+ 
+                                                                  .row-item {
+                                                                      display: flex;
+                                                                      flex-direction: column;
+                                                                      margin-right: 20px;
+                                                                  }
+ 
+                                                                  .half-row {
+                                                                      width: 50%;
+                                                                  }
+ 
+                                                                  /* --- Note and Module --- */
+                                                                  .note {
+                                                                      font-size: 8pt;
+                                                                      margin-bottom: 20px;
+                                                                  }
+ 
+                                                                  .module-box {
+                                                                      border: 1px solid #000;
+                                                                      padding: 5px 15px;
+                                                                      font-weight: bold;
+                                                                      display: inline-block;
+                                                                      margin-left: auto;
+                                                                  }
+ 
+                                                                  /* --- Candidate Details and Test Results Section --- */
+                                                                  .section-heading {
+                                                                      font-size: 12pt;
+                                                                      font-weight: bold;
+                                                                      margin-bottom: 8px;
+                                                                      border-bottom: 1px solid #000;
+                                                                      padding-bottom: 3px;
+                                                                  }
+ 
+                                                                  .candidate-details {
+                                                                      border: 1px solid #000;
+                                                                      display: flex;
+                                                                      margin-bottom: 20px;
+                                                                  }
+ 
+                                                                  .details-column {
+                                                                      flex-grow: 1;
+                                                                      padding: 10px;
+                                                                  }
+ 
+                                                                  .photo-area {
+                                                                      width: 150px;
+                                                                      height: 180px;
+                                                                      border-left: 1px solid #000;
+                                                                      background-color: #eee;
+                                                                      text-align: center;
+                                                                      line-height: 180px;
+                                                                      font-size: 8pt;
+                                                                      color: #555;
+                                                                      overflow: hidden; /* To ensure the image stays within bounds */
+                                                                  }
+ 
+                                                                  .photo-area img {
+                                                                      width: 100%;
+                                                                      height: 100%;
+                                                                      object-fit: cover; /* Ensures the image fills the area */
+                                                                      display: block;
+                                                                  }
+ 
+                                                                  .detail-line {
+                                                                      display: flex;
+                                                                      align-items: center;
+                                                                      margin-bottom: 5px;
+                                                                  }
+ 
+                                                                  .detail-label {
+                                                                      width: 150px;
+                                                                      font-weight: bold;
+                                                                  }
+ 
+                                                                  .result-table {
+                                                                      width: 100%;
+                                                                      border-collapse: collapse;
+                                                                      margin-bottom: 20px;
+                                                                  }
+ 
+                                                                  .result-table th, .result-table td {
+                                                                      border: 1px solid #000;
+                                                                      padding: 8px;
+                                                                      text-align: center;
+                                                                      font-weight: bold;
+                                                                  }
+ 
+                                                                  .result-table th {
+                                                                      background-color: #f0f0f0;
+                                                                      font-weight: normal;
+                                                                  }
+ 
+                                                                  /* --- Administrator and Stamp Area --- */
+                                                                  .admin-section {
+                                                                      display: flex;
+                                                                      margin-top: 12px;
+                                                                  }
+ 
+                                                                  .admin-comments {
+                                                                      width: 40%;
+                                                                      border: 1px solid #000;
+                                                                      min-height: 150px;
+                                                                      padding: 10px;
+                                                                      box-sizing: border-box;
+                                                                      margin-right: 20px;
+                                                                  }
+ 
+                                                                  .center-stamp-area {
+                                                                      width: 30%;
+                                                                      border: 1px solid #000;
+                                                                      min-height: 150px;
+                                                                      margin-right: 20px;
+                                                                      display: flex;
+                                                                      flex-direction: column;
+                                                                      justify-content: center;
+                                                                      align-items: center;
+                                                                      padding: 5px;
+                                                                      box-sizing: border-box;
+                                                                      text-align: center;
+                                                                  }
+ 
+                                                                  .validation-stamp-area {
+                                                                      width: 30%;
+                                                                      border: 1px solid #000;
+                                                                      min-height: 150px;
+                                                                      display: flex;
+                                                                      flex-direction: column;
+                                                                      justify-content: space-around;
+                                                                      align-items: center;
+                                                                  }
+
+                                                                  /* Validation Stamp Styles */
+                                                                  .eliedu-stamp-container {
+                                                                      position: relative;
+                                                                      width: 140px;
+                                                                      height: 140px;
+                                                                  }
+
+                                                                  .stamp-svg-ring {
+                                                                      stroke: #1e40af; /* Royal Blue */
+                                                                      fill: none;
+                                                                  }
+
+                                                                  .stamp-svg-bar {
+                                                                      fill: #eab308; /* Elegant Gold */
+                                                                      stroke: #1e40af;
+                                                                      stroke-width: 1;
+                                                                  }
+
+                                                                  .stamp-svg-center-text {
+                                                                      fill: #1e40af; /* Royal Blue */
+                                                                      font-family: Arial, sans-serif;
+                                                                      font-size: 12pt;
+                                                                      font-weight: bold;
+                                                                      text-anchor: middle;
+                                                                      dominant-baseline: central;
+                                                                  }
+
+                                                                  .stamp-svg-text {
+                                                                      fill: #eab308; /* Elegant Gold */
+                                                                      font-family: Arial, sans-serif;
+                                                                      font-size: 8pt;
+                                                                      font-weight: bold;
+                                                                  }
+
+                                                                  .stamp-svg-stars {
+                                                                      fill: #eab308; /* Elegant Gold */
+                                                                      font-size: 10pt;
+                                                                      text-anchor: middle;
+                                                                  }
+
+                                                                  .stamp-svg-line {
+                                                                      stroke: #eab308; /* Elegant Gold */
+                                                                      stroke-width: 1;
+                                                                  }
+ 
+                                                                  .stamp-placeholder {
+                                                                      width: 100px;
+                                                                      height: 100px;
+                                                                      border: 2px dashed #000;
+                                                                      border-radius: 50%;
+                                                                      text-align: center;
+                                                                      line-height: 100px;
+                                                                      font-size: 8pt;
+                                                                      font-weight: bold;
+                                                                      color: #000;
+                                                                  }
+ 
+                                                                  /* --- Footer --- */
+                                                                  .signature-area {
+                                                                      display: flex;
+                                                                      justify-content: flex-end;
+                                                                      margin-top: 8px;
+                                                                  }
+ 
+                                                                  .signature-box {
+                                                                      width: 200px;
+                                                                      text-align: center;
+                                                                      padding-top: 20px;
+                                                                  }
+ 
+                                                                  .signature-line {
+                                                                      border-bottom: 1px solid #000;
+                                                                      height: 30px; /* Space for the signature image */
+                                                                      margin-bottom: 5px;
+                                                                      position: relative;
+                                                                  }
+ 
+                                                                  .test-report-number {
+                                                                      display: flex;
+                                                                      justify-content: flex-end;
+                                                                      margin-top: 12px;
+                                                                  }
+ 
+                                                                  .test-report-box {
+                                                                      display: flex;
+                                                                      align-items: center;
+                                                                  }
+ 
+                                                                  .test-report-box .input-box {
+                                                                      background-color: white;
+                                                                      min-width: 150px;
+                                                                      text-align: center;
+                                                                      font-weight: bold;
+                                                                  }
+ 
+                                                                  .logos {
+                                                                      display: flex;
+                                                                      justify-content: space-around;
+                                                                      align-items: center;
+                                                                      border-top: 2px solid #000;
+                                                                      padding-top: 8px;
+                                                                      margin-top: 20px;
+                                                                  }
+ 
+                                                                  .logo-placeholder {
+                                                                      font-size: 10pt;
+                                                                      font-weight: bold;
+                                                                      height: 40px;
+                                                                      line-height: 40px;
+                                                                      text-align: center;
+                                                                  }
+ 
+                                                                  .footer-note {
+                                                                      font-size: 7pt;
+                                                                      text-align: center;
+                                                                      margin-top: 10px;
+                                                                  }
+ 
+                                                                  /* --- Content in Boxes --- */
+                                                                  .content {
+                                                                      font-weight: bold;
+                                                                      color: #000;
+                                                                  }
+ 
+                                                              </style>
                                                           </head>
                                                           <body>
-                                                            <div class="certificate">
-                                                              <div class="header">
-                                                                <h1 class="institute-name">European Language Institute</h1>
-                                                                <h2 class="certificate-title">Certificate of Completion</h2>
-                                                                <h3 class="certificate-subtitle">Language Proficiency Certification</h3>
-                                                              </div>
+                                                              <div class="container">
+                                                                  <div class="header">
+                                                                      <div class="header-left">
+                                                                          <h1>EUROPEAN LANGUAGES INSTITUTE</h1>
+                                                                          <div style="font-size: 14pt; margin-top: 5px;">Test Report Form</div>
+                                                                      </div>
+                                                                      <div class="header-right">
+                                                                      Language Skill: 
+                                                                          <div class="module-box"><strong>${course.language}</strong></div>
+                                                                      </div>
+                                                                  </div>
+ 
+                                                                  <div class="note">
+                                                                      NOTE: This Test Report Form serves as an official record of a candidate’s proficiency in Listening, Reading, Writing, and Speaking. Candidates are encouraged to prepare thoroughly for all four components to demonstrate balanced language competence. Admission to undergraduate and postgraduate programs should consider overall performance across these modules. It is strongly recommended that candidates review the Test Report Form Guide before submission and verify the authenticity of their results through the official validation portal.
+                                                                  </div>
+ 
+                                                                  <div class="row">
+                                                                      <div class="row-item">
+                                                                          Centre Number:
+                                                                          <div class="input-box"><span class="content">EL001</span></div>
+                                                                      </div>
+                                                                      <div class="row-item">
+                                                                          Date:
+                                                                          <div class="input-box"><span class="content">${new Date(course.certificateIssueDate).toLocaleDateString('en-GB')}</span></div>
+                                                                      </div>
+                                                                      <div class="row-item" style="margin-left: auto;">
+                                                                          Candidate Number:
+                                                                          <div class="input-box" style="min-width: 150px;"><span class="content">${displayStudent.certificateId.slice(-6)}</span></div>
+                                                                      </div>
+                                                                  </div>
+ 
+                                                                  <div class="section-heading">Candidate Details</div>
+                                                                  <div class="candidate-details">
+                                                                      <div class="details-column">
+                                                                          <div class="detail-line">
+                                                                              <div class="detail-label">Family Name:</div>
+                                                                              <div class="input-box" style="flex-grow: 1;"><span class="content">${displayStudent.studentName.split(' ')[1] || displayStudent.studentName}</span></div>
+                                                                          </div>
+                                                                          <div class="detail-line">
+                                                                              <div class="detail-label">First Name:</div>
+                                                                              <div class="input-box" style="flex-grow: 1;"><span class="content">${displayStudent.studentName.split(' ')[0]}</span></div>
+                                                                          </div>
+                                                                          <div class="detail-line">
+                                                                              <div class="detail-label">Candidate ID:</div>
+                                                                              <div class="input-box" style="width: 250px;"><span class="content">${displayStudent.passportNumber}</span></div>
+                                                                          </div>
+                                                                      </div>
+                                                                      <div class="photo-area">
+                                                                          ${displayStudent.profileImage ? `<img src="${displayStudent.profileImage}" alt="${displayStudent.studentName} Profile Photo">` : `<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE1MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9Ijc1IiB5PSI5MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOUI5QkE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iPkNhbmRpZGF0ZTwvdGV4dD4KPHRleHQgeD0iNzUiIHk9IjEwNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEwIiBmaWxsPSIjOUI5QkE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QaG90byBQbGFjZWhvbGRlcjwvdGV4dD4KPHN2Zz4=" alt="Candidate Profile Photo">`}
+                                                                      </div>
+                                                                  </div>
+ 
+                                                                  <div class="row">
+                                                                      <div class="row-item">
+                                                                          Date of Birth:
+                                                                          <div class="input-box"><span class="content">${displayStudent.dateOfBirth}</span></div>
+                                                                      </div>
+                                                                      <div class="row-item">
+                                                                          Sex (M/F):
+                                                                          <div class="input-box" style="width: 30px;"><span class="content">${displayStudent.gender}</span></div>
+                                                                      </div>
+                                                                      <div class="row-item">
+                                                                          Scheme Code:
+                                                                          <div class="input-box"><span class="content">Private Candidate</span></div>
+                                                                      </div>
+                                                                  </div>
+ 
+                                                                  <div class="row">
+                                                                      <div class="half-row row-item">
+                                                                          Country or Region of Origin:
+                                                                          <div class="input-box" style="width: 90%;"><span class="content">${displayStudent.countryOfOrigin}</span></div>
+                                                                      </div>
+                                                                      <div class="half-row row-item">
+                                                                          Country of Nationality:
+                                                                          <div class="input-box" style="width: 90%;"><span class="content">${displayStudent.countryOfNationality}</span></div>
+                                                                      </div>
+                                                                  </div>
+ 
+                                                                  <div class="row">
+                                                                      <div class="half-row row-item">
+                                                                          First Language:
+                                                                          <div class="input-box" style="width: 90%;"><span class="content">${displayStudent.firstLanguage}</span></div>
+                                                                      </div>
+                                                                  </div>
+ 
+                                                                  <div class="section-heading">Test Results</div>
+                                                                  <table class="result-table">
+                                                                      <thead>
+                                                                          <tr>
+                                                                              <th><strong>Listening</strong></th>
+                                                                              <th><strong>Reading</strong></th>
+                                                                              <th><strong>Writing</strong></th>
+                                                                              <th><strong>Speaking</strong></th>
+                                                                              <th><strong>CEFR Level</strong></th>
+                                                                          </tr>
+                                                                      </thead>
+                                                                      <tbody>
+                                                                          <tr>
+                                                                              <td><span class="content">A1</span></td>
+                                                                              <td><span class="content">A1</span></td>
+                                                                              <td><span class="content">A1</span></td>
+                                                                              <td><span class="content">A1</span></td>
+                                                                              <td><span class="content">${course.level}</span></td>
+                                                                          </tr>
+                                                                      </tbody>
+                                                                  </table>
+ 
+                                                                  <div class="admin-section">
+                                                                      <div class="admin-comments">
+                                                                          <div class="label">Administrator Comments</div>
+                                                                      </div>
+                                                                      <div class="center-stamp-area">
+                                                                          <div class="label">Centre stamp</div>
+                                                                          <div class="lder">
+                                                                              <img src="https://res.cloudinary.com/dl17n8mof/image/upload/v1761079435/centre_stemp_qzl5zf.png" alt="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                                                          </div>
+                                                                      </div>
+                                                                      <div class="validation-stamp-area">
+                <div class="label" style="font-size: 10pt; font-weight: bold;">Validation stamp</div>
+                <img src="https://res.cloudinary.com/dl17n8mof/image/upload/v1761077785/stemp_ufream.png" alt="Validation Stamp" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                </div>
+        </div>
 
-                                                              <div class="content">
-                                                                <p class="certificate-text">
-                                                                  This certifies that <span class="highlight">${displayStudent.studentName}</span>,<br>
-                                                                  <span class="info-value">${displayStudent.passportNumber}</span>,<br>
-                                                                  born <span class="info-value">${displayStudent.dateOfBirth}</span>,<br>
-                                                                  has successfully completed the <span class="highlight">${course.language} ${course.level}</span> course<br>
-                                                                  at the European Language Institute.
-                                                                </p>
+                                                                  <div class="signature-area">
+                                                                      <div class="row-item" style="margin-right: 50px;">
+                                                                          <div class="label">Date</div>
+                                                                          <div class="input-box" style="width: 150px; background-color: white;"><span class="content">${new Date(course.certificateIssueDate).toLocaleDateString('en-GB')}</span></div>
+                                                                      </div>
+                                                                      <div class="row-item">
+                                                                          <div class="label">Administrator's Signature</div>
+                                                                          <div class="signature-line">
+                                                                              <img src="https://res.cloudinary.com/dl17n8mof/image/upload/v1761077785/sign_rn79om.png" alt="Administrator's Signature" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; object-fit: contain;">
+                                                                          </div>
+                                                                      </div>
+                                                                  </div>
+ 
+                                                                  <div class="test-report-number">
+                                                                      <div class="test-report-box">
+                                                                          Test Report Form Number:
+                                                                          <div class="input-box"><span class="content">${displayStudent.testReportNumber}</span></div>
+                                                                      </div>
+                                                                  </div>
+ 
+                                                                  <div class="logos">
+                                                                      <div class="logo-placeholder">EUROPEAN LANGUAGES INSTITUTE</div>
+                                                                      <div class="logo-placeholder">ELIEDU ASSESSMENT</div>
+                                                                      <div class="logo-placeholder"></div>
+                                                                  </div>
+ 
+                                                                  <div class="footer-note">
+                                                                      The validity of this Test Report Form can be verified online by recognising organisations at https://www.eliedu.eu/verify
+                                                                  </div>
+ 
                                                               </div>
-
-                                                              <div class="dates-grid">
-                                                                <div class="date-box">
-                                                                  <div class="date-label">Completion Date</div>
-                                                                  <div class="date-value">${new Date(course.certificateIssueDate).toLocaleDateString('en-GB')}</div>
-                                                                </div>
-                                                                <div class="date-box">
-                                                                  <div class="date-label">Valid Until</div>
-                                                                  <div class="date-value">${new Date(course.certificateValidUntil).toLocaleDateString('en-GB')}</div>
-                                                                </div>
-                                                              </div>
-
-                                                              ${course.ieltsScores ? `
-                                                              <div class="pass-section">
-                                                                <div class="pass-badge">✓ ${course.result}</div>
-                                                              </div>
-                                                              ` : ''}
-
-                                                              <div class="signature-section">
-                                                                <div class="signature-box">
-                                                                  <div class="signature-label">Digitally Signed By</div>
-                                                                  <div class="signature-value">${displayStudent.digitalSignature}</div>
-                                                                  <div style="font-size: 14px; color: #6b7280; margin-top: 8px;">Director, European Language Institute</div>
-                                                                </div>
-                                                                <div class="signature-box">
-                                                                  <div class="signature-label">Certificate ID</div>
-                                                                  <div class="certificate-id">${displayStudent.certificateId}</div>
-                                                                </div>
-                                                              </div>
-                                                            </div>
                                                           </body>
-                                                        </html>
-                                                      `);
-                                                      printWindow.document.close();
-                                                      printWindow.print();
-                                                    }
-                                                  }}
-                                                  className="px-8 py-4 text-lg font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-white shadow-xl hover:shadow-2xl rounded-2xl transform hover:scale-105 transition-all duration-300"
-                                                >
-                                                  <FileText className="w-5 h-5 mr-2" />
-                                                  Download Certificate
-                                                </Button>
+                                                          </html>
+                                                        `);
+                                                        printWindow.document.close();
+                                                        printWindow.print();
+                                                      }
+                                                    }}
+                                                    className="px-8 py-4 text-lg font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-white shadow-xl hover:shadow-2xl rounded-2xl transform hover:scale-105 transition-all duration-300"
+                                                  >
+                                                    <FileText className="w-5 h-5 mr-2" />
+                                                    Download Certificate
+                                                  </Button>
                                               </div>
                                             </div>
                                           </div>
@@ -763,10 +1156,11 @@ export default function Verify() {
                           Verify Another Certificate
                         </Button>
                         <Button
-                          onClick={() => setSelectedCourse(displayStudent.courses[0] as ExtendedCourse)}
-                          className="flex-1 py-4 text-xl font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-white shadow-xl hover:shadow-2xl rounded-2xl transform hover:scale-105 transition-all duration-300"
+                          onClick={() => window.print()}
+                          className="flex-1 bg-primary text-primary-foreground hover:bg-primary"
                           data-testid="button-print"
                         >
+                          <FileText className="w-4 h-4 mr-2" />
                           Print Certificate Details
                         </Button>
                       </div>
@@ -801,6 +1195,8 @@ export default function Verify() {
     </div>
   );
 }
+
+
 
 
 
