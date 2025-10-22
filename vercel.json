@@ -13,14 +13,6 @@
       "use": "@vercel/node"
     }
   ],
-  "functions": {
-    "api/index.js": {
-      "runtime": "nodejs20.x",
-      "includeFiles": [
-        "dist/index.js"
-      ]
-    }
-  },
   "routes": [
     {
       "src": "/api/(.*)",
